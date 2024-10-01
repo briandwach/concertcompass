@@ -12,7 +12,9 @@
   "author": "Brian Wach",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.2"
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "mongoose": "^8.7.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.3"
