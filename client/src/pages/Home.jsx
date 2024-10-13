@@ -1,20 +1,16 @@
-import { useState, useEffect } from 'react';
-import { authorize, getTokens } from './demoAuthorization.js';
-import { getDisplayName } from './spotifyRequests.js';
-
+import { useEffect } from 'react';
 
 const Home = () => {
 
   useEffect(() => {
-    if (window.location.search !== '' && !window.location.search.includes("error")) {
-      getTokens();
-    }
+  
   }, []);
 
   return (
     <div>
-      <button type='button' onClick={authorize}>Authorize Spotify Account</button>
-      <button type='button' onClick={getDisplayName}>Console Log User Info</button>
+      <h1>Welcome</h1>
+      <p>This application is still under development.</p>
+      <p>Please come back soon.</p>
     </div>
   );
 };

@@ -1,28 +1,7 @@
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 const redirectUri = import.meta.env.VITE_REDIRECT_URI;
 
-// Database queries to store access and refresh token for Spotify demo account
-const storeTokens = async (tokenObj) => {
-    try {
-        const res = await fetch('/api/spotify/tokens', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(tokenObj)
-        });
-
-        if (!res.ok) {
-            throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-
-        const data = await res.json();
-        console.log('Tokens successfully saved in the dB:', data);
-        return data;
-    } catch (error) {
-        console.error('Error saving tokens in dB.', error);
-    }
-};
+import storeTokens from '../components/Admin/demoAuthorization.js';
 
 // Function to get state value stored in Express session
 const getState = async () => {
@@ -122,9 +101,6 @@ export const authorize = async function () {
 
     redirect();
 };
-
-
-
 
 // From Spotify Web API Documentation ----------------------------------------
 export const getTokens = async token => {

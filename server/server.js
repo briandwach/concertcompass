@@ -8,6 +8,10 @@ const db = require('./config/connection');
 
 const { trusted } = require('mongoose');
 
+// Tools needed to schedule demo access tokens refresh
+const cron = require('node-cron');
+const { refreshTokens } = require('./utils/tokenUtils');
+
 const app = express();
 const PORT = process.env.PORT || 3006;
 
@@ -32,8 +36,13 @@ app.use(express.json());
 
 app.use(routes);
 
+cron.schedule('*/58 * * * *', refreshTokens);
+
 db.once('open', () => {
     app.listen(PORT, () => {
         console.log(`API server running on port ${PORT}!`);
+
+        // Refreshes tokens at server start if previous token document exists
+        refreshTokens();
     });
 });

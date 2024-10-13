@@ -13,8 +13,8 @@ export const getDisplayName = async () => {
         }
 
         const data = await res.json();
-        console.log(data);
-        return data; // Return the data for further use
+        const displayName = data.display_name;
+        return displayName; // Return the data for further use
     } catch (error) {
         console.error('Error retrieving display name.', error);
     }

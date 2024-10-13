@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import App from './App.jsx'
 import Home from './pages/Home'
+import Maintenance from './pages/Maintenance'
 import Error from './pages/Error'
 
 const router = createBrowserRouter([
@@ -13,7 +14,10 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
+        element: <Home />
+      }, {
+        path: '/maintenance', 
+        element: <Maintenance />
       }
     ],
   },

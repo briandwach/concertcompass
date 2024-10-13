@@ -44,11 +44,11 @@ const getRefreshToken = async () => {
 const refreshTokens = async () => {
 
     const url = "https://accounts.spotify.com/api/token";
-    const refreshToken = await getResfreshToken;
+    const refreshToken = await getRefreshToken();
 
     // Validate request body
     if (!refreshToken) {
-        console.error('Error refreshing access token. Maintenance required.');
+        console.error('Error refreshing access token. Maintenance required or first initialization of server.');
         return;
     }
 
@@ -65,6 +65,10 @@ const refreshTokens = async () => {
     }
     const body = await fetch(url, payload);
     const response = await body.json();
+
+    console.log(`Token refresh called at: [${new Date().toISOString()}]`);
+    console.log('Spotify refresh token response:');
+    console.log(response);
 
     const savedTokens = await saveNewTokens(response.access_token, response.refresh_token);
     
