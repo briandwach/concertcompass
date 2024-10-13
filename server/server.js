@@ -36,7 +36,7 @@ app.use(express.json());
 
 app.use(routes);
 
-cron.schedule('*/58 * * * *', refreshTokens);
+cron.schedule('0 * * * *', refreshTokens);
 
 db.once('open', () => {
     app.listen(PORT, () => {
