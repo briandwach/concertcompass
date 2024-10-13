@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { authorize, getTokens } from './authorization.js';
+import { authorize, getTokens } from './demoAuthorization.js';
+import { getDisplayName } from './spotifyRequests.js';
 
 
 const Home = () => {
@@ -13,6 +14,7 @@ const Home = () => {
   return (
     <div>
       <button type='button' onClick={authorize}>Authorize Spotify Account</button>
+      <button type='button' onClick={getDisplayName}>Console Log User Info</button>
     </div>
   );
 };

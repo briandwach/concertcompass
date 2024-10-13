@@ -1,9 +1,10 @@
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-const redirectUri = 'http://localhost:3005';
+const redirectUri = import.meta.env.VITE_REDIRECT_URI;
 
+// Database queries to store access and refresh token for Spotify demo account
 const storeTokens = async (tokenObj) => {
     try {
-        const res = await fetch('/api/tokens', {
+        const res = await fetch('/api/spotify/tokens', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,6 +24,24 @@ const storeTokens = async (tokenObj) => {
     }
 };
 
+// Function to get state value stored in Express session
+const getState = async () => {
+    try {
+        const response = await fetch('/api/user/session', {
+            method: 'GET',
+            credentials: 'include', // Include cookies for session management
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.state; // Use the state as needed
+    } catch (error) {
+        console.error('Error retrieving state from session:', error);
+    }
+};
 
 // Spotify Authentification
 //---------------------------------------------------------------------------------------------------------------
@@ -66,7 +85,7 @@ export const authorize = async function () {
     // ---------------------------------------------------------------------------
 
 
-
+    const state = generateRandomString(16);
     const scope = 'playlist-modify-public playlist-modify-private';
     const authUrl = new URL("https://accounts.spotify.com/authorize");
 
@@ -77,15 +96,31 @@ export const authorize = async function () {
         response_type: 'code',
         client_id: clientId,
         scope,
-        state: 'concertcompass',
+        state: state,
         code_challenge_method: 'S256',
         code_challenge: codeChallenge,
         redirect_uri: redirectUri
     };
 
-    authUrl.search = new URLSearchParams(params).toString();
-    window.location.href = authUrl.toString();
-    // ---------------------------------------------------------------------------
+    // Stores unique state value in Expression and redirects to Spotify auth url
+    const redirect = async () => {
+        const response = await fetch('/api/user/store-state', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ state }),
+        });
+
+        if (response.ok) {
+            authUrl.search = new URLSearchParams(params).toString();
+            window.location.href = authUrl.toString();
+        } else {
+            console.error('Failed to store state on server.');
+        }
+    };
+
+    redirect();
 };
 
 
@@ -94,14 +129,21 @@ export const authorize = async function () {
 // From Spotify Web API Documentation ----------------------------------------
 export const getTokens = async token => {
 
-
     const url = "https://accounts.spotify.com/api/token";
 
     // From Spotify Web API Documentation ----------------------------------------
     const urlParams = new URLSearchParams(window.location.search);
-    let code = urlParams.get('code');
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
     // ---------------------------------------------------------------------------
 
+    // Retrieves state from Express session
+    const sessionState = await getState();
+
+    if (sessionState !== state) {
+        console.log('There was a state mismatch');
+        return;
+    }
 
     // stored in the previous step
     let codeVerifier = localStorage.getItem('code_verifier');
@@ -122,22 +164,6 @@ export const getTokens = async token => {
 
     const body = await fetch(url, payload);
     const tokenObj = await body.json();
-
-    localStorage.setItem('access_token', tokenObj.access_token);
-    localStorage.setItem('refresh_token', tokenObj.refresh_token);
-    // ---------------------------------------------------------------------------
-
-
-    // ------  Store display name
-    const getDisplayName = await fetch('https://api.spotify.com/v1/me', {
-        method: 'GET',
-        headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('access_token')
-        }
-    });
-
-    const data = await getDisplayName.json();
-    localStorage.setItem('display_name', data.display_name);
 
     // API request to store tokens in dB
     storeTokens(tokenObj);
