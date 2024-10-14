@@ -67,8 +67,6 @@ const refreshTokens = async () => {
     const response = await body.json();
 
     console.log(`Token refresh called at: [${new Date().toISOString()}]`);
-    console.log('Spotify refresh token response:');
-    console.log(response);
 
     const savedTokens = await saveNewTokens(response.access_token, response.refresh_token);
     
@@ -76,7 +74,7 @@ const refreshTokens = async () => {
         console.error('saveNewTokens utility function did not work.');
     }
 
-    console.log('Spotify demo tokens have been refreshed: ', savedTokens);
+    console.log('Spotify demo tokens have successfully been refreshed.');
 };
 
 module.exports = { saveNewTokens, getAccessToken, refreshTokens };
