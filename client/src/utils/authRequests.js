@@ -81,25 +81,28 @@ export const authorize = async function () {
         redirect_uri: redirectUri
     };
 
+    authUrl.search = new URLSearchParams(params).toString();
+    window.location.href = authUrl.toString();
+
     // Stores unique state value in Expression and redirects to Spotify auth url
-    const redirect = async () => {
-        const response = await fetch('/api/user/store-state', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ state }),
-        });
+    // const redirect = async () => {
+    //     const response = await fetch('/api/user/store-state', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({ state }),
+    //     });
 
-        if (response.ok) {
-            authUrl.search = new URLSearchParams(params).toString();
-            window.location.href = authUrl.toString();
-        } else {
-            console.error('Failed to store state on server.');
-        }
-    };
+    //     if (response.ok) {
+    //         authUrl.search = new URLSearchParams(params).toString();
+    //         window.location.href = authUrl.toString();
+    //     } else {
+    //         console.error('Failed to store state on server.');
+    //     }
+    // };
 
-    redirect();
+    // redirect();
 };
 
 // From Spotify Web API Documentation ----------------------------------------
@@ -114,12 +117,12 @@ export const getTokens = async token => {
     // ---------------------------------------------------------------------------
 
     // Retrieves state from Express session
-    const sessionState = await getState();
+    // const sessionState = await getState();
 
-    if (sessionState !== state) {
-        console.log('There was a state mismatch');
-        return;
-    }
+    // if (sessionState !== state) {
+    //     console.log('There was a state mismatch');
+    //     return;
+    // }
 
     // stored in the previous step
     let codeVerifier = localStorage.getItem('code_verifier');

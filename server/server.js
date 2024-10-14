@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const express = require('express');
-const session = require('express-session');
 const routes = require('./controllers');
 const cors = require('cors');
 const db = require('./config/connection');
@@ -17,18 +16,10 @@ const PORT = process.env.PORT || 3006;
 
 // Configure cross-origin resource sharing
 const corsOptions = {
-    origin:'http://localhost:3005',
+    origin: process.env.ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 };
-
-// Session configuration
-app.use(session({
-    secret: process.env.SESSION_SECRET, 
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === 'production' } 
-}));
 
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
