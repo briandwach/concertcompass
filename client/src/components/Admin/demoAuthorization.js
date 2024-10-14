@@ -14,7 +14,7 @@ const storeTokens = async (tokenObj) => {
         }
 
         const data = await res.json();
-        console.log('Tokens successfully saved in the dB:', data);
+        console.log('Tokens successfully saved in the dB.');
         return data;
     } catch (error) {
         console.error('Error saving tokens in dB.', error);
