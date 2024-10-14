@@ -35,20 +35,20 @@ router.get('/displayName', async (req, res) => {
         return res.status(500).json({ error: 'Access token not available.' });
     }
 
-    const getDisplayName = await fetch('https://api.spotify.com/v1/me', {
+    const response = await fetch('https://api.spotify.com/v1/me', {
         method: 'GET',
         headers: {
             Authorization: 'Bearer ' + accessToken
         }
     });
 
-    if (!getDisplayName.ok) {
+    if (!response.ok) {
         const errorData = await response.json();
         console.error('Spotify API error:', errorData);
         return res.status(response.status).json({ error: errorData.error.message });
     }
 
-    const data = await getDisplayName.json();
+    const data = await response.json();
 
     res.status(200).json(data);
 
