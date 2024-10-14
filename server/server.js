@@ -1,18 +1,18 @@
 require('dotenv').config();
 
 const express = require('express');
+const path = require('path'); 
 const routes = require('./controllers');
 const cors = require('cors');
-const db = require('./config/connection');
 
-const { trusted } = require('mongoose');
+const app = express();
+const PORT = process.env.PORT || 3006;
+
+const db = require('./config/connection');
 
 // Tools needed to schedule demo access tokens refresh
 const cron = require('node-cron');
 const { refreshTokens } = require('./utils/tokenUtils');
-
-const app = express();
-const PORT = process.env.PORT || 3006;
 
 // Configure cross-origin resource sharing
 const corsOptions = {
