@@ -25,10 +25,10 @@ const Maintenance = () => {
 
   return (
     <div>
-      <button type='button' onClick={authorize}>Authorize Spotify Account</button>
+      <button type='button' onClick={authorize} className='btn'>Authorize Spotify Account</button>
       <br />
       <br />
-      <button type='button' onClick={handleDisplayName}>Test User Info</button>
+      <button type='button' onClick={handleDisplayName} className='btn'>Test User Info</button>
       <p>{name}</p>
     </div>
   );
