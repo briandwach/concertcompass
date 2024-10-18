@@ -8,7 +8,7 @@ const Home = () => {
 
   return (
     <div>
-      <h1>Welcome</h1>
+      <h1 className='underline'>Welcome</h1>
       <p>This application is still under development.</p>
       <p>Please come back soon.</p>
     </div>
