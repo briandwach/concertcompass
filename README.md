@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
 
 ## STILL UNDER DEVELOPMENT
-Please come back soon.
+Please feel free to visit the [LIVE SITE](https://concertcompass.onrender.com/) and check on its progress.
 
 ## Description
 
