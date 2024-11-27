@@ -10,9 +10,10 @@ const PORT = process.env.PORT || 3006;
 
 const db = require('./config/connection');
 
-// Tools needed to schedule demo access tokens refresh
+// Tools needed to scheduled server tasks
 const cron = require('node-cron');
 const { refreshTokens } = require('./utils/tokenUtils');
+const { updateMetroAreas } = require('./utils/jamBaseUtils');
 
 // Configure cross-origin resource sharing
 const corsOptions = {
@@ -28,6 +29,7 @@ app.use(express.json());
 app.use(routes);
 
 cron.schedule('*/30 * * * *', refreshTokens);
+cron.schedule('0 0 * * 0', updateMetroAreas);
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../client/dist')));
