@@ -1,8 +1,8 @@
 const { Tokens } = require('../models');
 
 const saveNewTokens = async (access_token, refresh_token) => {
-     // Validate receiving token data
-     if (!access_token || !refresh_token) {
+    // Validate receiving token data
+    if (!access_token || !refresh_token) {
         console.error('Could not save tokens to database: token data not present.')
         return;
     }
@@ -69,12 +69,12 @@ const refreshTokens = async () => {
     console.log(`Token refresh called at: [${new Date().toISOString()}]`);
 
     const savedTokens = await saveNewTokens(response.access_token, response.refresh_token);
-    
+
     if (!savedTokens) {
         console.error('saveNewTokens utility function did not work.');
-    }
-
-    console.log('Spotify demo tokens have successfully been refreshed.');
+    } else {
+        console.log('Spotify demo tokens have successfully been refreshed.');
+    };
 };
 
 module.exports = { saveNewTokens, getAccessToken, refreshTokens };
