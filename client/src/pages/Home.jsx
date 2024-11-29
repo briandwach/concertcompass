@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { getMetros } from '../utils/jamBaseRequests.js';
+import Calendar from '../components/Calendar/Calendar.jsx';
 
 const Home = () => {
+  const [dateRange, setDateRange] = useState([null, null]);
   const [metroFilter, setMetroFilter] = useState([]);
   const [metroSearch, setMetroSearch] = useState('');
   const [metroSelection, setMetroSelection] = useState({});
@@ -70,6 +72,10 @@ const Home = () => {
     setMetroSelection({});
   }
 
+  const handleDateRangeChange = (newDateRange) => {
+    setDateRange(newDateRange);
+  };
+
   // RENDER
   /////////
 
@@ -85,6 +91,8 @@ const Home = () => {
         <li>Then we'll create your playlist</li>
       </ul>
 
+      <br />
+      <Calendar dateRange={dateRange} onDateRangeChange={handleDateRangeChange} />
       <br />
 
       <div className={`${selectionDisplay} flex`}>
@@ -122,14 +130,16 @@ const Home = () => {
           </svg>
         </label>
 
-        <ul className={searchDisplay}>
+        <div className={searchDisplay}>
           {metroFilter.map((metro) => (
-            <li key={metro.identifier}
+            <button 
+              className='btn btn-sm btn-outline m-1 block'
+              key={metro.identifier}
               onClick={() => handleMetroSelection(metro)}>
               {metro.name}
-            </li>
+            </button>
           ))}
-        </ul>
+        </div>
 
       </div>
     </div>
