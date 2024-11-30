@@ -1,13 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const GenreButton = ({ genre, handleGenreSelection }) => {
-    const [buttonState, setButtonState] = useState('btn-outline');
+const GenreButton = ({ genre, handleGenreSelection, buttonSelected, buttonUnSelected }) => {
+    const [buttonState, setButtonState] = useState('btn-neutral');
+
+    useEffect(() => {
+        if (buttonSelected) {
+            setButtonState('btn-neutral');
+        }
+
+        if (buttonUnSelected) {
+            setButtonState('btn-outline');
+        } 
+    }, [buttonSelected, buttonUnSelected]);
 
     // EVENT HANDLERS
     /////////////////
     const handleGenreSelect = (genre) => {
         setButtonState((prevState) =>
-            prevState === 'btn-outline' ? 'btn-neutral' : 'btn-outline'
+            prevState === 'btn-neutral' ? 'btn-outline' : 'btn-neutral'
         );
 
         handleGenreSelection(genre);
