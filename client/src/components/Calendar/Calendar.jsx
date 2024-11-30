@@ -36,7 +36,8 @@ const Calendar = ({ dateRange, onDateRangeChange }) => {
         endDate={endDate}
         onChange={handleDateChange}
         minDate={new Date()}
-        onFocus={handleFocus} // Prevent mobile keyboard on focus
+        onFocus={handleFocus}
+        onClick={handleFocus} // Prevent mobile keyboard on focus
         isClearable
         placeholderText="Select start and end date"
       />

@@ -1,7 +1,10 @@
 const BASE_URL = 'https://jambase.com/jb-api/v1';
 const API_KEY = process.env.JAMBASE_API_KEY;
 
-const { Metros } = require('../models');
+const { Metros, Genres } = require('../models');
+
+// Endpoint Tools
+/////////////////
 
 // Utility function to concatenate endpoint with query parameters
 const concatEp = (ep, params) => {
@@ -27,6 +30,9 @@ const createOptions = (options) => {
 
     return optionsObj;
 }
+
+// METROS
+/////////
 
 // Takes metro data and creates an array of the names
 const createMetroArr = (data) => {
@@ -84,7 +90,7 @@ const updateMetroAreas = async () => {
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error('JamBase API error:', errorData);
+            console.error('JamBase API error (metros):', errorData);
             return;
         }
 
@@ -114,4 +120,90 @@ const updateMetroAreas = async () => {
     }
 }
 
-module.exports = { concatEp, createOptions, updateMetroAreas }
+// GENRES
+/////////
+
+// Takes genre data and creates an array of the names
+const createGenreArr = (data) => {
+    if (!data || !Array.isArray(data.genres)) {
+        return []; // Return an empty array if the data is not valid
+    }
+
+    const genreArr = data.genres.map(genre => ({
+        identifier: genre.identifier, 
+        name: genre.name
+    }));
+
+    return genreArr;
+}
+
+// Save genre data to the database
+const saveGenreData = async (arr) => {
+    if (!arr || !Array.isArray(arr)) {
+        console.error('Could not save genres to db: genre data not present or invalid.');
+        return;
+    }
+
+    try {
+        // First, delete previous metro documents
+        const deleteResult = await Genres.deleteMany({});
+        console.log(`All previous genres deleted: ${deleteResult.deletedCount} documents removed.`);
+
+        if (arr.length > 0) {
+            // Bulk insert valid metro names
+            const genreDocuments = arr.map(genre => ({
+                identifier: genre.identifier, 
+                name: genre.name
+            }));
+            const result = await Genres.insertMany(genreDocuments);
+            console.log(`Saved ${result.length} genres.`);
+            return result.length;
+        } else {
+            console.log('No valid genre data to save.');
+        }
+
+    } catch (error) {
+        console.error('Error saving genre data:', error);
+    }
+}
+
+const updateGenres = async () => {
+    const url = concatEp('/genres');
+    const options = createOptions('GET');
+
+    try {
+        const response = await fetch(url, options);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('JamBase API error (genres):', errorData);
+            return;
+        }
+
+        const data = await response.json();
+
+        // Ensure createMetroArr returns a valid array
+        const genreArr = createGenreArr(data);
+
+        if (!genreArr || genreArr.length === 0) {
+            console.error('No valid genre data to save.');
+            return;
+        }
+
+        // Save metro data to the database
+        const saveGenres = await saveGenreData(genreArr);
+
+        // Check if saving was successful
+        if (saveGenres && saveGenres > 0) {
+            console.log(`${saveGenres} genres saved to the db successfully!`);
+        } else {
+            console.error('Failed to save genres to the db.');
+        }
+
+        return saveGenres;
+    } catch (err) {
+        console.error('Error retrieving JamBase genres:', err);
+    }
+}
+
+module.exports = { concatEp, createOptions, updateMetroAreas, updateGenres }

@@ -13,7 +13,7 @@ const db = require('./config/connection');
 // Tools needed to scheduled server tasks
 const cron = require('node-cron');
 const { refreshTokens } = require('./utils/tokenUtils');
-const { updateMetroAreas } = require('./utils/jamBaseUtils');
+const { updateMetroAreas, updateGenres } = require('./utils/jamBaseUtils');
 
 // Configure cross-origin resource sharing
 const corsOptions = {
@@ -30,6 +30,7 @@ app.use(routes);
 
 cron.schedule('*/30 * * * *', refreshTokens);
 cron.schedule('0 0 * * 0', updateMetroAreas);
+cron.schedule('0 0 * * 0', updateGenres);
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../client/dist')));
