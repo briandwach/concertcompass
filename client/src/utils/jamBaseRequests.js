@@ -1,3 +1,24 @@
+export const getEvents = async (params) => {
+    try {
+        const res = await fetch(`/api/jamBase/events/${params}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(`HTTP error! Status: ${res.status} - ${errorData.message || errorData}`);
+        }
+        
+        const data = await res.json();
+        return data;
+    } catch (error) {
+        console.error('Error retrieving event information from server or JamBase API', error);
+    }
+}
+
 export const getMetros = async () => {
     try {
         const res = await fetch('/api/jamBase/metros', {
