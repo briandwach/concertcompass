@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { getMetros } from '../utils/jamBaseRequests.js';
 import Calendar from '../components/Calendar/Calendar.jsx';
+import Genres from '../components/Genres/Genres.jsx';
 
 const Home = () => {
   const [dateRange, setDateRange] = useState([null, null]);
+  const [genreSelections, setGenreSelections] = useState([]);
   const [metroFilter, setMetroFilter] = useState([]);
   const [metroSearch, setMetroSearch] = useState('');
   const [metroSelection, setMetroSelection] = useState({});
@@ -76,6 +78,10 @@ const Home = () => {
     setDateRange(newDateRange);
   };
 
+  const handleGenreChange = (newGenres) => {
+    setGenreSelections(newGenres);
+  };
+
   // RENDER
   /////////
 
@@ -114,6 +120,10 @@ const Home = () => {
         </button>
       </div>
 
+      <div className={selectionDisplay}>
+          <Genres genreSelections={genreSelections} handleGenreChange={handleGenreChange} />
+        </div>
+
       <div className={searchDisplay}>
         <label className="input input-bordered flex items-center gap-2 max-w-[500px]">
           <input type="text" className="grow" placeholder="Search metro areas"
@@ -130,18 +140,18 @@ const Home = () => {
           </svg>
         </label>
 
-        <div className={searchDisplay}>
-          {metroFilter.map((metro) => (
-            <button 
-              className='btn btn-sm btn-outline m-1 block'
-              key={metro.identifier}
-              onClick={() => handleMetroSelection(metro)}>
-              {metro.name}
-            </button>
-          ))}
-        </div>
-
+        {metroFilter.map((metro) => (
+          <button
+            className='btn btn-sm btn-outline m-1 block'
+            key={metro.identifier}
+            onClick={() => handleMetroSelection(metro)}>
+            {metro.name}
+          </button>
+        ))}
       </div>
+
+        
+
     </div>
   );
 };

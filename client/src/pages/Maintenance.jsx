@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { authorize, getTokens } from '../utils/authRequests.js';
 import { getDisplayName } from '../utils/spotifyRequests.js';
-import { updateMetros } from '../utils/jamBaseRequests.js';
+import { updateMetros, updateGenres } from '../utils/jamBaseRequests.js';
 
 const Maintenance = () => {
   const [name, setName] = useState('');
-  const [seedResult, setSeedResult] = useState('');
+  const [metroResult, setMetroResult] = useState('');
+  const [genreResult, setGenreResult] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +28,12 @@ const Maintenance = () => {
 
   const seedMetros = async () => {
     const result = await updateMetros(); // Await the async call
-    setSeedResult(result);
+    setMetroResult(result);
+  };
+
+  const seedGenres = async () => {
+    const result = await updateGenres(); // Await the async call
+    setGenreResult(result);
   };
 
   return (
@@ -40,7 +46,11 @@ const Maintenance = () => {
       <br />
       <br />
       <button type='button' onClick={seedMetros} className='btn'>Update Metros</button>
-      <p>{seedResult}</p>
+      <p>{metroResult}</p>
+      <br />
+      <br />
+      <button type='button' onClick={seedGenres} className='btn'>Update Genres</button>
+      <p>{genreResult}</p>
     </div>
   );
 };
