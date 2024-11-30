@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getMetros } from '../utils/jamBaseRequests.js';
 import Calendar from '../components/Calendar/Calendar.jsx';
 import Genres from '../components/Genres/Genres.jsx';
+import Events from '../components/Events/Events.jsx';
 
 const Home = () => {
   const [dateRange, setDateRange] = useState([null, null]);
@@ -50,6 +51,7 @@ const Home = () => {
       setSearchDisplay('block');
     }
   }, [metroSelection]);
+  
 
   // EVENT HANDLERS
   /////////////////
@@ -103,11 +105,11 @@ const Home = () => {
       setClearAllGenres(false);
     }
 
-    console.group();
-    for (let genre of newGenres) {
-      console.log(genre.name);
-    }
-    console.groupEnd();
+    // console.group();
+    // for (let genre of newGenres) {
+    //   console.log(genre.name);
+    // }
+    // console.groupEnd();
   };
 
   const handleSelectAllGenres = () => {
@@ -170,7 +172,7 @@ const Home = () => {
           <Genres
             genreSelections={genreSelections}
             handleGenreChange={handleGenreChange}
-            selectAllGenres={selectAllGenres} 
+            selectAllGenres={selectAllGenres}
             clearAllGenres={clearAllGenres}
             getTotalGenres={getTotalGenres}
           />
@@ -203,7 +205,14 @@ const Home = () => {
         ))}
       </div>
 
-
+      <div>
+        <Events
+          dateRange={dateRange}
+          metroSelection={metroSelection}
+          genreSelections={genreSelections}
+          totalGenres={totalGenres}
+        />
+      </div>
 
     </div>
   );

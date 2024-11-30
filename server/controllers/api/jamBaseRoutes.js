@@ -2,6 +2,29 @@ const router = require('express').Router();
 const { concatEp, createOptions, updateMetroAreas, updateGenres } = require('../../utils/jamBaseUtils');
 const { Metros, Genres } = require('../../models');
 
+
+router.get('/events/*', async (req, res) => {
+    const params = req.params[0];
+    const url = concatEp('/events', params);
+    const options = createOptions('GET');
+
+    try {
+        const response = await fetch(url, options);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('JamBase API error (events):', errorData);
+            return res.status(500).json({ message: 'Event data could not be retrieved, please try again.'});
+        }
+
+        const data = await response.json();
+        return res.status(200).json(data);
+    } catch (err) {
+        console.error('Error retrieving event data from JamBase API', err);
+        res.status(500).json({ error: 'Something went wrong, please try again'});
+    }
+});
+
 // Gets array of JamBase metro data and delivers to client
 router.get('/metros', async (req, res) => {
     try {
@@ -12,13 +35,13 @@ router.get('/metros', async (req, res) => {
             console.error('Requested metros not found in the database.');
             return res.status(404).json({ error: 'Metro data not found' });
         }
-        
+
         // Return the list of metros with 200 OK status
         return res.status(200).json(metros);
     } catch (err) {
         // Catch any error during the query
         console.error('Error retrieving metros data from db', err);
-        
+
         // Return a 500 internal server error response
         res.status(500).json({ error: 'Something went wrong, please refresh and try again.' });
     }
@@ -34,13 +57,13 @@ router.get('/genres', async (req, res) => {
             console.error('Requested genres not found in the database.');
             return res.status(404).json({ error: 'Genre data not found' });
         }
-        
+
         // Return the list of metros with 200 OK status
         return res.status(200).json(genres);
     } catch (err) {
         // Catch any error during the query
         console.error('Error retrieving genre data from db', err);
-        
+
         // Return a 500 internal server error response
         res.status(500).json({ error: 'Something went wrong, please refresh and try again.' });
     }
@@ -61,7 +84,7 @@ router.put('/metros', async (req, res) => {
     } catch (err) {
         console.error('Error updating metros in database:', err);
         res.status(500).json({ error: 'Something went wrong, please try again.' });
-    }  
+    }
 });
 
 // Updates genres in database to match that of JamBases
@@ -77,7 +100,7 @@ router.put('/genres', async (req, res) => {
     } catch (err) {
         console.error('Error updating genres in database:', err);
         res.status(500).json({ error: 'Something went wrong, please try again.' });
-    }  
+    }
 });
 
 module.exports = router;
