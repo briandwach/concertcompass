@@ -6,11 +6,15 @@ import Genres from '../components/Genres/Genres.jsx';
 const Home = () => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [genreSelections, setGenreSelections] = useState([]);
+  const [totalGenres, setTotalGenres] = useState(0);
   const [metroFilter, setMetroFilter] = useState([]);
   const [metroSearch, setMetroSearch] = useState('');
   const [metroSelection, setMetroSelection] = useState({});
   const [searchDisplay, setSearchDisplay] = useState('block');
   const [selectionDisplay, setSelectionDisplay] = useState('hidden');
+  const [areGenresVisible, setAreGenresVisible] = useState(false);
+  const [selectAllGenres, setSelectAllGenres] = useState(false);
+  const [clearAllGenres, setClearAllGenres] = useState(false);
   const metroDataRef = useRef([]);
 
   useEffect(() => {
@@ -78,9 +82,43 @@ const Home = () => {
     setDateRange(newDateRange);
   };
 
+  const handleGenresVisible = () => {
+    setAreGenresVisible((prevState) => !prevState);
+  };
+
+  const getTotalGenres = (total) => {
+    setTotalGenres(total);
+  };
+
   const handleGenreChange = (newGenres) => {
     setGenreSelections(newGenres);
+
+    // Resets boolean trigger for select all genres
+    if (newGenres.length < totalGenres) {
+      setSelectAllGenres(false);
+    }
+
+    // Resets boolean trigger for clear all genres
+    if (newGenres.length > 0) {
+      setClearAllGenres(false);
+    }
+
+    console.group();
+    for (let genre of newGenres) {
+      console.log(genre.name);
+    }
+    console.groupEnd();
   };
+
+  const handleSelectAllGenres = () => {
+    setSelectAllGenres(true);
+    setClearAllGenres(false);
+  }
+
+  const handleClearAllGenres = () => {
+    setClearAllGenres(true);
+    setSelectAllGenres(false);
+  }
 
   // RENDER
   /////////
@@ -121,8 +159,23 @@ const Home = () => {
       </div>
 
       <div className={selectionDisplay}>
-          <Genres genreSelections={genreSelections} handleGenreChange={handleGenreChange} />
+        <div className='flex text-sm'>
+          <p className='m-2' onClick={handleGenresVisible}>{areGenresVisible ? 'Hide Genre Filters' : 'Show Genre Filters'}</p>
+          <div className={`${areGenresVisible ? 'block' : 'hidden'} flex`}>
+            <p className='m-2' onClick={handleSelectAllGenres}>Select All</p>
+            <p className='m-2' onClick={handleClearAllGenres}>Clear All</p>
+          </div>
         </div>
+        <div className={areGenresVisible ? 'block' : 'hidden'}>
+          <Genres
+            genreSelections={genreSelections}
+            handleGenreChange={handleGenreChange}
+            selectAllGenres={selectAllGenres} 
+            clearAllGenres={clearAllGenres}
+            getTotalGenres={getTotalGenres}
+          />
+        </div>
+      </div>
 
       <div className={searchDisplay}>
         <label className="input input-bordered flex items-center gap-2 max-w-[500px]">
@@ -150,7 +203,7 @@ const Home = () => {
         ))}
       </div>
 
-        
+
 
     </div>
   );
