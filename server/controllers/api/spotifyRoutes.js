@@ -59,3 +59,18 @@ router.get('/displayName', async (req, res) => {
 });
 
 module.exports = router;
+
+//  Triggers Spotify API calls to generate playlist for demo account and return link to playlist
+router.get('/playlist', async (req, res) => {
+    try {
+        if (1 === 1) {
+            console.log('Successfully sent request to get playlist')
+            return res.status(200).json(`Successfully sent request to get playlist`);
+        } else {
+            return res.status(500).json('Error updating metros in db.')
+        }
+    } catch (err) {
+        console.error('Error receiving Spotify playlist request', err);
+        res.status(500).json({ error: 'Error trying to retrieve playlist, please try again.' });
+    }
+});

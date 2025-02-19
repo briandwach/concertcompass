@@ -19,3 +19,26 @@ export const getDisplayName = async () => {
         console.error('Error retrieving display name.', error);
     }
 }
+
+
+export const getPlaylist = async () => {
+    try {
+        const res = await fetch('/api/spotify/playlist', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            alert(`There was a problem generating a playlist: ${res.status} - ${errorData.message || errorData}`)
+        }
+
+        const data = await res.json();
+
+        alert(`${data}`);
+    } catch (error) {
+        alert('Request failed to send.')
+    }
+}

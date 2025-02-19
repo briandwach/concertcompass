@@ -3,6 +3,7 @@ import { getMetros } from '../utils/jamBaseRequests.js';
 import Calendar from '../components/Calendar/Calendar.jsx';
 import Genres from '../components/Genres/Genres.jsx';
 import Events from '../components/Events/Events.jsx';
+import PlaylistButton from '../components/Playlist/PlaylistButton.jsx';
 
 const Home = () => {
   const [dateRange, setDateRange] = useState([null, null]);
@@ -13,6 +14,8 @@ const Home = () => {
   const [metroSelection, setMetroSelection] = useState({});
   const [searchDisplay, setSearchDisplay] = useState('block');
   const [selectionDisplay, setSelectionDisplay] = useState('hidden');
+  const [events, setEvents] = useState([])
+  const [isPlaylistButtonVisible, setIsPlaylistButtonVisible] = useState(false);
   const [areGenresVisible, setAreGenresVisible] = useState(false);
   const [selectAllGenres, setSelectAllGenres] = useState(false);
   const [clearAllGenres, setClearAllGenres] = useState(false);
@@ -84,6 +87,10 @@ const Home = () => {
     setDateRange(newDateRange);
   };
 
+  const handlePlaylistButtonVisible = () => {
+    setIsPlaylistButtonVisible((prevState) => !prevState);
+  };
+
   const handleGenresVisible = () => {
     setAreGenresVisible((prevState) => !prevState);
   };
@@ -122,6 +129,16 @@ const Home = () => {
     setSelectAllGenres(false);
   }
 
+  const handleEventsChange = (newEvents) => {
+    setEvents(newEvents);
+
+    console.log(newEvents);
+
+    if (newEvents.length > 0) {
+      handlePlaylistButtonVisible();
+    }
+  }
+
   // RENDER
   /////////
 
@@ -136,6 +153,13 @@ const Home = () => {
         <li>Select the genres you like (optional)</li>
         <li>Then we'll create your playlist</li>
       </ul>
+
+      <br />
+      <div className={isPlaylistButtonVisible ? 'block' : 'hidden'}>
+      <PlaylistButton>
+      </PlaylistButton>
+      </div>
+      <br />
 
       <br />
       <Calendar dateRange={dateRange} onDateRangeChange={handleDateRangeChange} />
@@ -211,6 +235,7 @@ const Home = () => {
           metroSelection={metroSelection}
           genreSelections={genreSelections}
           totalGenres={totalGenres}
+          handleEventsChange={handleEventsChange}
         />
       </div>
 
