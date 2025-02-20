@@ -21,13 +21,17 @@ export const getDisplayName = async () => {
 }
 
 
-export const getPlaylist = async () => {
+export const getPlaylist = async (artists) => {
     try {
+        console.log(artists);
         const res = await fetch('/api/spotify/playlist', {
-            method: 'GET',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({
+                artists: artists
+            })
         });
 
         if (!res.ok) {

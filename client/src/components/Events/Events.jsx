@@ -44,8 +44,14 @@ const Events = ({ dateRange, metroSelection, genreSelections, totalGenres, handl
                         date: format(new Date(startDate), 'MM-dd'),
                     };
                 });
+
+                // Extracts the headlining artist of each event and returns an array of artist names
+                const artistData = data.events.map((event) => {
+                    return event.performer[0].name;
+                });
+
                 setEventData(eventData);
-                handleEventsChange(eventData);
+                handleEventsChange(artistData);
             } else {
                 setError('No events found.');
             }

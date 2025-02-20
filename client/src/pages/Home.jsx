@@ -14,8 +14,7 @@ const Home = () => {
   const [metroSelection, setMetroSelection] = useState({});
   const [searchDisplay, setSearchDisplay] = useState('block');
   const [selectionDisplay, setSelectionDisplay] = useState('hidden');
-  const [events, setEvents] = useState([])
-  const [isPlaylistButtonVisible, setIsPlaylistButtonVisible] = useState(false);
+  const [artists, setArtists] = useState([])
   const [areGenresVisible, setAreGenresVisible] = useState(false);
   const [selectAllGenres, setSelectAllGenres] = useState(false);
   const [clearAllGenres, setClearAllGenres] = useState(false);
@@ -87,10 +86,6 @@ const Home = () => {
     setDateRange(newDateRange);
   };
 
-  const handlePlaylistButtonVisible = () => {
-    setIsPlaylistButtonVisible((prevState) => !prevState);
-  };
-
   const handleGenresVisible = () => {
     setAreGenresVisible((prevState) => !prevState);
   };
@@ -129,14 +124,8 @@ const Home = () => {
     setSelectAllGenres(false);
   }
 
-  const handleEventsChange = (newEvents) => {
-    setEvents(newEvents);
-
-    console.log(newEvents);
-
-    if (newEvents.length > 0) {
-      handlePlaylistButtonVisible();
-    }
+  const handleEventsChange = (newArtists) => {
+    setArtists(newArtists);
   }
 
   // RENDER
@@ -155,10 +144,9 @@ const Home = () => {
       </ul>
 
       <br />
-      <div className={isPlaylistButtonVisible ? 'block' : 'hidden'}>
-      <PlaylistButton>
-      </PlaylistButton>
-      </div>
+      {artists.length > 0 && (
+      <PlaylistButton artists={artists} />
+      )}
       <br />
 
       <br />

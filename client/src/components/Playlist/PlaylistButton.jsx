@@ -2,21 +2,21 @@ import { getPlaylist } from '../../utils/spotifyRequests.js';
 
 // EVENT HANDLERS
 /////////////////
-const handlePlaylistGeneration = () => {
-    getPlaylist();
+const handlePlaylistGeneration = (artists) => {
+    getPlaylist(artists);
 };
 
 
 // RENDER
 /////////
-const PlaylistButton = () => {
+const PlaylistButton = ({ artists }) => {
 
 
 
     return (
         <button 
             className={`btn btn-sm m-1`}
-            onClick={handlePlaylistGeneration}
+            onClick={() => handlePlaylistGeneration(artists)}
         >
             Generate Playlist
         </button>
