@@ -126,6 +126,18 @@ const Home = () => {
 
   const handleEventsChange = (newArtists) => {
     setArtists(newArtists);
+
+    console.log('ARTIST DATA')
+    console.log(newArtists);
+
+    console.log('METRO DATA')
+    console.log(metroSelection)
+
+    console.log('DATE RANGE DATA')
+    console.log(dateRange)
+
+    // console.log('GENRE DATA')
+    // console.log(genreSelections)
   }
 
   // RENDER
