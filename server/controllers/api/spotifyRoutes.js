@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { saveNewTokens, getAccessToken } = require('../../utils/tokenUtils');
+const { createAllTracksPlaylist } = require('../../utils/spotifyDemoUtils');
 
 // Creates new token document after deleting previous token document
 router.post('/tokens', async (req, res) => {
@@ -63,11 +64,10 @@ module.exports = router;
 //  Triggers Spotify API calls to generate playlist for demo account and return link to playlist
 router.post('/playlist', async (req, res) => {
     try {
-        const { artists } = req.body;
+        const { artists, metro, dates } = req.body;
 
         if (artists.length > 0) {
-            console.log('Successfully sent request to get playlist')
-            console.log(artists)
+            createAllTracksPlaylist(artists, metro, dates);
             return res.status(200).json(`Successfully sent request to get playlist`);
         } else {
             return res.status(500).json('Error generating playlist')

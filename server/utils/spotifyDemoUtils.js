@@ -1,13 +1,21 @@
-export default function createAllTracksPlaylist(artists) {
+const { getAccessToken } = require('./tokenUtils');
 
-    artistsArr = removeDuplicates(artists);
+// This needs to be fixed to not have a global variable
+let allTracksArr = [];
+let accessToken = '';
 
-    for (i = 0; i < artists.length; ++i) {
-        if (i == artists.length - 1 || i == 49) {
-            searchForSpotifyArtist(artists[i], true);
+async function createAllTracksPlaylist(artists, metro, dates) {
+    allTracksArr = [];
+    accessToken = await getAccessToken();
+
+    const artistsArr = removeDuplicates(artists);
+
+    for (i = 0; i < artistsArr.length; ++i) {
+        if (i == artistsArr.length - 1 || i == 49) {
+            searchForSpotifyArtist(artistsArr[i], metro, dates, true);
             break;
         } else {
-            searchForSpotifyArtist(artists[i], false);
+            searchForSpotifyArtist(artistsArr[i], false);
         }
     }
 }
@@ -25,9 +33,7 @@ function removeDuplicates(arr) {
 
 // Spotify API Functions // Spotify API Functions // Spotify API Functions // Spotify API Functions // Spotify API Functions // Spotify API Functions
 
-async function searchForSpotifyArtist(artist, createPlaylist) {
-    let accessToken = localStorage.getItem('access_token');
-
+async function searchForSpotifyArtist(artist, metro, dates, createPlaylist) {
     const response = await fetch('https://api.spotify.com/v1/search?q=' + artist + '&type=artist&market=US&limit=5', {
         method: 'GET',
         headers: {
@@ -39,25 +45,21 @@ async function searchForSpotifyArtist(artist, createPlaylist) {
 
     if (createPlaylist) {
         if (data.artists.items[0].name != artist) {
-            getSpotifyUserID(allTracksArr, accessToken);
+            getSpotifyUserID(metro, dates);
         } else {
             var spotifyArtistId = (data.artists.items[0].id);
-            getSpotifyArtistTopTracks(spotifyArtistId, accessToken, createPlaylist);
+            getSpotifyArtistTopTracks(spotifyArtistId, metro, dates, createPlaylist);
         }
     } else if (data.artists.items[0].name != artist) {
         return;
     } else {
         var spotifyArtistId = (data.artists.items[0].id);
-        getSpotifyArtistTopTracks(spotifyArtistId, accessToken, createPlaylist);
+        getSpotifyArtistTopTracks(spotifyArtistId);
     }
 };
 
 
-async function getSpotifyArtistTopTracks(artistID, accessToken, createPlaylist) {
-    let container = document.getElementById("results-container");
-
-    container.textContent = "";
-
+async function getSpotifyArtistTopTracks(artistID, metro, dates, createPlaylist) {
     const response = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/top-tracks?market=US', {
         method: 'GET',
         headers: {
@@ -67,27 +69,18 @@ async function getSpotifyArtistTopTracks(artistID, accessToken, createPlaylist) 
 
     const data = await response.json();
 
-    var trackIdsArray = [];
-
     for (var t = 0; t < 2; t++) {
         if (data.tracks[t] != 'undefined' && data.tracks[t] != null) {
-            trackIdsArray[t] = data.tracks[t].id;
             allTracksArr.push(data.tracks[t].id);
         };
     };
 
     if (createPlaylist) {
-        getSpotifyUserID(allTracksArr, accessToken);
+        getSpotifyUserID(metro, dates);
     }
 };
 
-async function getSpotifyUserID(trackIdsArray, accessToken) {
-
-    document.getElementById("calendar").style.display = "none";
-    radioTrackerEl.style.display = "none";
-
-    let container = document.getElementById("results-container");
-
+async function getSpotifyUserID(metro, dates) {
     const response = await fetch('https://api.spotify.com/v1/me', {
         method: 'GET',
         headers: {
@@ -99,17 +92,15 @@ async function getSpotifyUserID(trackIdsArray, accessToken) {
 
     var userId = data.id;
 
-    createSpotifyPlaylist(userId, trackIdsArray, accessToken);
+    createSpotifyPlaylist(userId, metro, dates);
 };
 
-async function createSpotifyPlaylist(userId, trackIdsArray, accessToken) {
+async function createSpotifyPlaylist(userId, metro, dates) {
 
-    var dateRange = "";
-
-    if (localStorage.getItem('Start Date') === localStorage.getItem('End Date')) {
-        dateRange = localStorage.getItem('Start Date');
+    if (dates.startDate === dates.endDate) {
+        dateRange = dates.startDate;
     } else {
-        dateRange = (localStorage.getItem('Start Date') + ' - ' + localStorage.getItem('End Date'));
+        dateRange = dates.startDate + ' - ' + dates.endDate;
     }
 
     const response = await fetch('https://api.spotify.com/v1/users/' + userId + '/playlists', {
@@ -117,8 +108,8 @@ async function createSpotifyPlaylist(userId, trackIdsArray, accessToken) {
         headers: {
             Authorization: 'Bearer ' + accessToken,
         }, body: JSON.stringify({
-            "name": localStorage.getItem('Metro Name') + " " + dateRange + " from Concert Sampler",
-            "description": "Created by Concert Sampler web application",
+            "name": metro + " " + dateRange + " from Concert Compass",
+            "description": "Created by Concert Compass web application",
             "public": true
         })
     });
@@ -127,17 +118,15 @@ async function createSpotifyPlaylist(userId, trackIdsArray, accessToken) {
 
     var playlistId = data.id;
 
-    addItemsToPlaylist(playlistId, trackIdsArray, accessToken);
-
-
+    addItemsToPlaylist(playlistId);
 }
 
-async function addItemsToPlaylist(playlistId, trackIdsArray, accessToken) {
+async function addItemsToPlaylist(playlistId) {
 
     var trackIdsUris = [];
 
-    for (var i = 0; i < trackIdsArray.length; i++) {
-        trackIdsUris[i] = ("spotify:track:" + trackIdsArray[i]);
+    for (var i = 0; i < allTracksArr.length; i++) {
+        trackIdsUris[i] = ("spotify:track:" + allTracksArr[i]);
     };
 
     const response = await fetch('https://api.spotify.com/v1/playlists/' + playlistId + '/tracks', {
@@ -151,10 +140,8 @@ async function addItemsToPlaylist(playlistId, trackIdsArray, accessToken) {
 
     const data = await response.json();
 
-    let container = document.getElementById("results-container");
-    container.innerHTML += ('<li>Good news!  Your playlist has been created.  It has been added to your Spotify library and you can listen now below.</li>');
-
-    iframePlaylist(playlistId, accessToken);
+    // Continue this once ready for future iframes
+    // iframePlaylist(playlistId, accessToken);
 }
 
 
@@ -197,3 +184,5 @@ async function unfollowPlaylist(playlistId, accessToken) {
 function startNewSearch() {
     window.location.replace(redirectUri);
 }
+
+module.exports = { createAllTracksPlaylist };

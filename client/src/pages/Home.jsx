@@ -157,7 +157,11 @@ const Home = () => {
 
       <br />
       {artists.length > 0 && (
-      <PlaylistButton artists={artists} />
+      <PlaylistButton 
+        artists = {artists}
+        metro = {metroSelection}
+        dateRange = {dateRange}
+        />
       )}
       <br />
 

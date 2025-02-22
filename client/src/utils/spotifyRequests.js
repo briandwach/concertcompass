@@ -1,3 +1,5 @@
+import { playlistDates } from './dateFormats.js';
+
 export const getDisplayName = async () => {
     try {
         const res = await fetch('/api/spotify/displayName', {
@@ -21,16 +23,19 @@ export const getDisplayName = async () => {
 }
 
 
-export const getPlaylist = async (artists) => {
+export const getPlaylist = async (artists, metro, dateRange) => {
     try {
-        console.log(artists);
+        const dates = playlistDates(dateRange);
+
         const res = await fetch('/api/spotify/playlist', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                artists: artists
+                artists: artists,
+                metro: metro,
+                dates: dates
             })
         });
 
