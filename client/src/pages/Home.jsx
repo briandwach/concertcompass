@@ -3,6 +3,7 @@ import { getMetros } from '../utils/jamBaseRequests.js';
 import Calendar from '../components/Calendar/Calendar.jsx';
 import Genres from '../components/Genres/Genres.jsx';
 import Events from '../components/Events/Events.jsx';
+import PlaylistButton from '../components/Playlist/PlaylistButton.jsx';
 
 const Home = () => {
   const [dateRange, setDateRange] = useState([null, null]);
@@ -13,6 +14,7 @@ const Home = () => {
   const [metroSelection, setMetroSelection] = useState({});
   const [searchDisplay, setSearchDisplay] = useState('block');
   const [selectionDisplay, setSelectionDisplay] = useState('hidden');
+  const [artists, setArtists] = useState([])
   const [areGenresVisible, setAreGenresVisible] = useState(false);
   const [selectAllGenres, setSelectAllGenres] = useState(false);
   const [clearAllGenres, setClearAllGenres] = useState(false);
@@ -122,6 +124,22 @@ const Home = () => {
     setSelectAllGenres(false);
   }
 
+  const handleEventsChange = (newArtists) => {
+    setArtists(newArtists);
+
+    console.log('ARTIST DATA')
+    console.log(newArtists);
+
+    console.log('METRO DATA')
+    console.log(metroSelection)
+
+    console.log('DATE RANGE DATA')
+    console.log(dateRange)
+
+    // console.log('GENRE DATA')
+    // console.log(genreSelections)
+  }
+
   // RENDER
   /////////
 
@@ -136,6 +154,16 @@ const Home = () => {
         <li>Select the genres you like (optional)</li>
         <li>Then we'll create your playlist</li>
       </ul>
+
+      <br />
+      {artists.length > 0 && (
+      <PlaylistButton 
+        artists = {artists}
+        metro = {metroSelection}
+        dateRange = {dateRange}
+        />
+      )}
+      <br />
 
       <br />
       <Calendar dateRange={dateRange} onDateRangeChange={handleDateRangeChange} />
@@ -211,6 +239,7 @@ const Home = () => {
           metroSelection={metroSelection}
           genreSelections={genreSelections}
           totalGenres={totalGenres}
+          handleEventsChange={handleEventsChange}
         />
       </div>
 

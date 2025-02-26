@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getEvents } from '../../utils/jamBaseRequests.js';
 import { format } from 'date-fns';
 
-const Events = ({ dateRange, metroSelection, genreSelections, totalGenres }) => {
+const Events = ({ dateRange, metroSelection, genreSelections, totalGenres, handleEventsChange }) => {
     const [eventData, setEventData] = useState([]);
     const [loading, setLoading] = useState(false); // Track loading state
     const [error, setError] = useState(null); // Track error state
@@ -44,7 +44,14 @@ const Events = ({ dateRange, metroSelection, genreSelections, totalGenres }) => 
                         date: format(new Date(startDate), 'MM-dd'),
                     };
                 });
+
+                // Extracts the headlining artist of each event and returns an array of artist names
+                const artistData = data.events.map((event) => {
+                    return event.performer[0].name;
+                });
+
                 setEventData(eventData);
+                handleEventsChange(artistData);
             } else {
                 setError('No events found.');
             }
