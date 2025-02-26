@@ -46,7 +46,7 @@ export const getPlaylist = async (artists, metro, dateRange) => {
 
         const data = await res.json();
 
-        alert(`${data}`);
+        return data;
     } catch (error) {
         alert('Request failed to send.')
     }

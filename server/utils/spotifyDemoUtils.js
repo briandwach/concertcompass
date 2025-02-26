@@ -1,39 +1,53 @@
 const { getAccessToken } = require('./tokenUtils');
 
-// This needs to be fixed to not have a global variable
-let allTracksArr = [];
-let accessToken = '';
-
-async function createAllTracksPlaylist(artists, metro, dates) {
-    allTracksArr = [];
-    accessToken = await getAccessToken();
+async function generatePlaylist(artists, metro, dates) {
+    const tracksArr = [];
+    const accessToken = await getAccessToken();
 
     const artistsArr = removeDuplicates(artists);
 
-    for (i = 0; i < artistsArr.length; ++i) {
-        if (i == artistsArr.length - 1 || i == 49) {
-            searchForSpotifyArtist(artistsArr[i], metro, dates, true);
-            break;
-        } else {
-            searchForSpotifyArtist(artistsArr[i], false);
+    // Avoids playlist being larger than 100 songs (50 artists).  You can only add 100 songs at a time to a playlist in an API call.
+    for (i = 0; i < artistsArr.length && tracksArr.length < 100; i++) {
+
+        const artistId = await searchForSpotifyArtist(artistsArr[i], accessToken);
+
+        if (artistId) {
+            const topTracks = await getSpotifyArtistTopTracks(artistId, accessToken);
+
+            if (topTracks) {
+                for (let track of topTracks) {
+                    tracksArr.push(track);
+                }
+            }
         }
     }
+
+    console.log('Tracks Array');
+    console.log(tracksArr);
+
+    const userId = await getSpotifyUserID(accessToken);
+
+    let playlistUrl = '';
+
+    if (userId) {
+        const playlist = await createSpotifyPlaylist(userId, metro, dates, accessToken)
+
+        if (playlist) {
+            playlistUrl = playlist.url;
+            await addTracksToPlaylist(playlist.id, tracksArr, accessToken);
+        }
+    }
+
+    return playlistUrl;
 }
+
 
 function removeDuplicates(arr) {
-    let newArr = [];
-    for (let i = 0; i < arr.length; i++) {
-        if (!newArr.includes(arr[i])) {
-            newArr.push(arr[i]);
-        }
-    }
-    return newArr;
+    return [...new Set(arr)]
 }
 
 
-// Spotify API Functions // Spotify API Functions // Spotify API Functions // Spotify API Functions // Spotify API Functions // Spotify API Functions
-
-async function searchForSpotifyArtist(artist, metro, dates, createPlaylist) {
+async function searchForSpotifyArtist(artist, accessToken) {
     const response = await fetch('https://api.spotify.com/v1/search?q=' + artist + '&type=artist&market=US&limit=5', {
         method: 'GET',
         headers: {
@@ -43,23 +57,26 @@ async function searchForSpotifyArtist(artist, metro, dates, createPlaylist) {
 
     const data = await response.json();
 
-    if (createPlaylist) {
-        if (data.artists.items[0].name != artist) {
-            getSpotifyUserID(metro, dates);
-        } else {
-            var spotifyArtistId = (data.artists.items[0].id);
-            getSpotifyArtistTopTracks(spotifyArtistId, metro, dates, createPlaylist);
-        }
-    } else if (data.artists.items[0].name != artist) {
-        return;
+    const name = data.artists.items[0].name;
+    const artistId = data.artists.items[0].id;
+
+    console.log('Artist Name');
+    console.log(name);
+
+
+    if (name.toLowerCase() === artist.toLowerCase()) {
+        console.log('Artist ID');
+        console.log(artistId);
+        return artistId;
     } else {
-        var spotifyArtistId = (data.artists.items[0].id);
-        getSpotifyArtistTopTracks(spotifyArtistId);
+        console.log('******No artist match between JamBase and Spotify******');
     }
+
+    return false;
 };
 
 
-async function getSpotifyArtistTopTracks(artistID, metro, dates, createPlaylist) {
+async function getSpotifyArtistTopTracks(artistID, accessToken) {
     const response = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/top-tracks?market=US', {
         method: 'GET',
         headers: {
@@ -69,18 +86,25 @@ async function getSpotifyArtistTopTracks(artistID, metro, dates, createPlaylist)
 
     const data = await response.json();
 
+    const trackIds = [];
+
     for (var t = 0; t < 2; t++) {
         if (data.tracks[t] != 'undefined' && data.tracks[t] != null) {
-            allTracksArr.push(data.tracks[t].id);
-        };
-    };
+            trackIds.push(data.tracks[t].id);
+        }
+    }
 
-    if (createPlaylist) {
-        getSpotifyUserID(metro, dates);
+    console.log('Track Ids');
+    console.log(trackIds);
+
+    if (trackIds.length > 0) {
+        return trackIds;
+    } else {
+        return false;
     }
 };
 
-async function getSpotifyUserID(metro, dates) {
+async function getSpotifyUserID(accessToken) {
     const response = await fetch('https://api.spotify.com/v1/me', {
         method: 'GET',
         headers: {
@@ -90,12 +114,10 @@ async function getSpotifyUserID(metro, dates) {
 
     const data = await response.json();
 
-    var userId = data.id;
-
-    createSpotifyPlaylist(userId, metro, dates);
+    return data.id;
 };
 
-async function createSpotifyPlaylist(userId, metro, dates) {
+async function createSpotifyPlaylist(userId, metro, dates, accessToken) {
 
     if (dates.startDate === dates.endDate) {
         dateRange = dates.startDate;
@@ -114,34 +136,39 @@ async function createSpotifyPlaylist(userId, metro, dates) {
         })
     });
 
-    const data = await response.json();
+    const playlist = await response.json();
 
-    var playlistId = data.id;
-
-    addItemsToPlaylist(playlistId);
+    return { id: playlist.id, url: playlist.external_urls.spotify };
 }
 
-async function addItemsToPlaylist(playlistId) {
+async function addTracksToPlaylist(playlistId, tracksArr, accessToken) {
+    try {
+        const trackIdsUris = tracksArr.map(track => "spotify:track:" + track);
 
-    var trackIdsUris = [];
+        const response = await fetch('https://api.spotify.com/v1/playlists/' + playlistId + '/tracks', {
+            method: 'POST',
+            headers: {
+                Authorization: 'Bearer ' + accessToken,
+            },
+            body: JSON.stringify({
+                "uris": trackIdsUris
+            })
+        });
 
-    for (var i = 0; i < allTracksArr.length; i++) {
-        trackIdsUris[i] = ("spotify:track:" + allTracksArr[i]);
-    };
+        // Check if the response is successful (status code 2xx)
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Error adding tracks: ${errorData.error.message}`);
+        }
 
-    const response = await fetch('https://api.spotify.com/v1/playlists/' + playlistId + '/tracks', {
-        method: 'POST',
-        headers: {
-            Authorization: 'Bearer ' + accessToken,
-        }, body: JSON.stringify({
-            "uris": trackIdsUris
-        })
-    });
+        // If response is successful, you can handle the response as needed
+        const data = await response.json();
+        // console.log('Tracks added successfully', data);
 
-    const data = await response.json();
-
-    // Continue this once ready for future iframes
-    // iframePlaylist(playlistId, accessToken);
+    } catch (error) {
+        // Handle errors (network issues, invalid response, etc.)
+        console.error('An error occurred:', error.message);
+    }
 }
 
 
@@ -185,4 +212,4 @@ function startNewSearch() {
     window.location.replace(redirectUri);
 }
 
-module.exports = { createAllTracksPlaylist };
+module.exports = { generatePlaylist };

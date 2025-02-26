@@ -1,26 +1,55 @@
+import { useState } from 'react';
 import { getPlaylist } from '../../utils/spotifyRequests.js';
 
-// EVENT HANDLERS
-/////////////////
-const handlePlaylistGeneration = (artists, metro, dateRange) => {
-    getPlaylist(artists, metro, dateRange);
-};
-
-
-// RENDER
-/////////
 const PlaylistButton = ({ artists, metro, dateRange }) => {
+    const [playlistData, setPlaylistData] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
+    // EVENT HANDLERS
+    /////////////////
+    const handlePlaylistGeneration = async () => {
+        setLoading(true);
+        try {
+            const playlistUrl = await getPlaylist(artists, metro.name, dateRange);
+            setPlaylistData(playlistUrl);
+        } catch (err) {
+            setError('Failed to generate playlist.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-
+    // RENDER
+    /////////
     return (
-        <button 
-            className={`btn btn-sm m-1`}
-            onClick={() => handlePlaylistGeneration(artists, metro.name, dateRange)}
-        >
-            Generate Playlist
-        </button>
-    )
+        <div>
+            {!loading && !playlistData && (
+                <button
+                    className="btn btn-sm m-1"
+                    onClick={() => handlePlaylistGeneration()}
+                >
+                    Generate Playlist
+                </button>
+            )}
+
+            {loading && <p>Creating playlist...</p>}
+
+            {!loading && playlistData && (
+                <button className="btn btn-sm m-1">
+                    <a
+                        href={playlistData}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Open Playlist
+                    </a>
+                </button>
+            )}
+
+            {error && <p className="text-danger">{error}</p>}
+        </div>
+    );
 };
 
 export default PlaylistButton;
